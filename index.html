@@ -1844,7 +1844,6 @@
             .facebook-nav { display: none; }
 
             body { background: transparent; }
-            body::after { background-attachment: scroll; }
 
             header { padding: 1rem; }
 
@@ -2497,16 +2496,7 @@
         }
 
 
-        body::after {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background:
-                url('https://i.imgur.com/SF7rXmN.jpeg') center top/cover;
-            z-index: -1;
-            pointer-events: none;
-            opacity: 1;
-        }
+
 
         @keyframes dropBounce {
             0%   { opacity: 0; transform: translateY(-40px); }
@@ -2780,6 +2770,7 @@
     </svg>
     <noscript><style>#site-cover{display:none}</style></noscript>
     <div id="site-cover" style="position:fixed;inset:0;z-index:9998;transition:opacity 0.4s ease;background:url('https://i.imgur.com/SF7rXmN.jpeg') center top/cover;"></div>
+    <div id="bg-fixed" style="position:fixed;inset:0;z-index:-1;background:url('https://i.imgur.com/SF7rXmN.jpeg') center top/cover;pointer-events:none;"></div>
     <script>
         (function() {
             var img = new Image();
