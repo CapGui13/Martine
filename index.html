@@ -1317,7 +1317,6 @@
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
-            min-height: 300px;
         }
 
         .gallery-item {
@@ -1844,6 +1843,7 @@
             .facebook-nav { display: none; }
 
             body { background: transparent; }
+            body::after { background-attachment: scroll; }
 
             header { padding: 1rem; }
 
@@ -2496,7 +2496,28 @@
         }
 
 
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                url('https://i.imgur.com/SF7rXmN.jpeg') center top/cover;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 1;
+            /* Promotion GPU : évite le repaint à chaque frame de scroll sur mobile */
+            will-change: transform;
+            transform: translateZ(0);
+        }
 
+        @media (max-width: 1050px) {
+            body::after {
+                background-image: url('https://i.imgur.com/MxM3Se0.jpeg');
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-position: top center;
+            }
+        }
 
         @keyframes dropBounce {
             0%   { opacity: 0; transform: translateY(-40px); }
@@ -2769,25 +2790,33 @@
         </symbol>
     </svg>
     <noscript><style>#site-cover{display:none}</style></noscript>
+    <div id="site-cover" style="position:fixed;inset:0;z-index:9998;transition:opacity 0.4s ease;"></div>
     <script>
         (function() {
-            function fixBgHeight() {
-                var bg = document.getElementById('bg-fixed');
-                if (bg) bg.style.height = window.innerHeight + 'px';
+            var cover = document.getElementById('site-cover');
+            if (!cover) return;
+            var isMobile = window.innerWidth <= 1050;
+            var imgSrc = isMobile
+                ? 'https://i.imgur.com/MxM3Se0.jpeg'
+                : 'https://i.imgur.com/SF7rXmN.jpeg';
+
+            // Précharger dynamiquement la bonne image
+            var preload = document.createElement('link');
+            preload.rel = 'preload';
+            preload.as = 'image';
+            preload.href = imgSrc;
+            document.head.appendChild(preload);
+
+            if (isMobile) {
+                cover.style.backgroundImage = "url('" + imgSrc + "')";
+                cover.style.backgroundSize = '100% auto';
+                cover.style.backgroundRepeat = 'repeat-y';
+                cover.style.backgroundPosition = 'top center';
+            } else {
+                cover.style.background = "url('" + imgSrc + "') center top/cover";
             }
-            fixBgHeight();
-            // Recalcul uniquement sur resize réel (pas sur scroll iOS)
-            var lastW = window.innerWidth;
-            window.addEventListener('resize', function() {
-                if (window.innerWidth !== lastW) {
-                    lastW = window.innerWidth;
-                    fixBgHeight();
-                }
-            }, { passive: true });
         })();
     </script>
-    <div id="site-cover" style="position:fixed;inset:0;z-index:9998;transition:opacity 0.4s ease;background:url('https://i.imgur.com/SF7rXmN.jpeg') center top/cover;"></div>
-    <div id="bg-fixed" style="position:fixed;top:0;left:0;width:100%;z-index:-1;background:url('https://i.imgur.com/SF7rXmN.jpeg') center top/cover;pointer-events:none;"></div>
     <script>
         (function() {
             var img = new Image();
@@ -2900,7 +2929,7 @@
                     <p class="address-line">Boulevard du Maréchal Juin</p>
                     <p class="address-line">13090 Aix-en-Provence</p>
                     <p><strong>Téléphone :</strong> 04 42 95 62 03</p>
-                    <p><strong>Email :</strong> <a href="mailto:royrenebridge@gmail.com">royrenebridge@gmail.com</a></p>
+                    <p><strong>Email :</strong> <a href="/cdn-cgi/l/email-protection#e89a87919a8d868d8a9a818c8f8da88f85898184c68b8785"><span class="__cf_email__" data-cfemail="05776a7c77606b6067776c616260456268646c692b666a68">[email&#160;protected]</span></a></p>
                     <p style="font-style: italic; margin-top: 2.5rem; color: #666; line-height: 1.15;">
                         Créé en Octobre 1967, le Bridge Club du Roy René occupe maintenant le rez-de-chaussée de la Maison du Bridge à Aix-en-Provence.<br><br>
                         Le bâtiment est accessible aux handicapés et notre salle, climatisée et très lumineuse, peut accueillir jusqu'à 120 joueurs.
@@ -2923,11 +2952,11 @@
                 <p class="gallery-subtitle">Découvrez l'ambiance chaleureuse de notre club</p>
                 
                 <div class="gallery-filters">
-                    <button class="filter-btn active" data-filter="all" onclick="filterGallery('all', this)">Toutes</button>
-                    <button class="filter-btn" data-filter="salle" onclick="filterGallery('salle', this)">La Salle</button>
-                    <button class="filter-btn" data-filter="tournois" onclick="filterGallery('tournois', this)">Tournois</button>
-                    <button class="filter-btn" data-filter="cours" onclick="filterGallery('cours', this)">Cours</button>
-                    <button class="filter-btn" data-filter="events" onclick="filterGallery('events', this)">Événements</button>
+                    <button class="filter-btn active" onclick="filterGallery('all', this)">Toutes</button>
+                    <button class="filter-btn" onclick="filterGallery('salle', this)">La Salle</button>
+                    <button class="filter-btn" onclick="filterGallery('tournois', this)">Tournois</button>
+                    <button class="filter-btn" onclick="filterGallery('cours', this)">Cours</button>
+                    <button class="filter-btn" onclick="filterGallery('events', this)">Événements</button>
                     <button class="filter-btn admin-btn" onclick="openAdmin()" title="Administration">⚙️</button>
                 </div>
 
@@ -3018,7 +3047,7 @@
         </div>
         <div class="contact-info-item">
             <label>Email</label>
-            <p><a href="mailto:royrenebridge@gmail.com">royrenebridge@gmail.com</a></p>
+            <p><a href="/cdn-cgi/l/email-protection#1a687563687f747f7868737e7d7f5a7d777b737634797577"><span class="__cf_email__" data-cfemail="83f1ecfaf1e6ede6e1f1eae7e4e6c3e4eee2eaefade0ecee">[email&#160;protected]</span></a></p>
         </div>
     </div>
 
@@ -3043,7 +3072,7 @@
                 </div>
                 <div class="contact-info-item">
                     <label>Email</label>
-                    <p><a href="mailto:bridgeclubroyrene@gmail.com">bridgeclubroyrene@gmail.com</a></p>
+                    <p><a href="/cdn-cgi/l/email-protection#ec8e9e85888b898f80998e9e83959e898289ac8b818d8580c28f8381"><span class="__cf_email__" data-cfemail="5436263d30333137382136263b2d26313a31143339353d387a373b39">[email&#160;protected]</span></a></p>
                 </div>
             </div>
         </div>
@@ -3157,7 +3186,7 @@
         <div class="footer-inner">
             <div class="footer-links">
                 <a href="tel:+33442956203"><span class="footer-tel-icon">📞</span> 04 42 95 62 03</a>
-                <a href="mailto:royrenebridge@gmail.com">✉ royrenebridge@gmail.com</a>
+                <a href="/cdn-cgi/l/email-protection#abd9c4d2d9cec5cec9d9c2cfccceebccc6cac2c785c8c4c6">✉ <span class="__cf_email__" data-cfemail="b9cbd6c0cbdcd7dcdbcbd0dddedcf9ded4d8d0d597dad6d4">[email&#160;protected]</span></a>
             </div>
             <div class="footer-copy">
                 <span class="footer-copy-name">© <span id="currentYear"></span> Bridge Club Roy René</span><span class="footer-copy-sep"> — </span><span class="footer-copy-address">Boulevard du Maréchal Juin, 13090 Aix-en-Provence</span>
@@ -3451,7 +3480,7 @@
 
                 showSuccessMessage('✓ Photo publiée avec succès !');
                 cancelUpload();
-                refreshGallery();
+                initGallery();
                 updateAdminPhotosList();
             };
 
@@ -3499,7 +3528,7 @@
                     'style="width:100%;padding:4px 6px;border:1px solid #555;border-radius:4px;background:#2a2a2a;color:#fff;font-size:13px;margin-bottom:6px;">' +
                     catOptions +
                     '</select>' +
-                    '<button class="admin-photo-delete" data-id="' + photo.id + '">\uD83D\uDDD1\uFE0F Supprimer</button>' +
+                    '<button class="admin-photo-delete" data-id="' + photo.id + '">\u{1F5D1}\uFE0F Supprimer</button>' +
                     '</div>';
 
                 // Rename on input blur
@@ -3538,7 +3567,7 @@
                     galleryImages.splice(targetIndex, 0, moved);
                     savePhotosToStorage();
                     updateAdminPhotosList();
-                    refreshGallery();
+                    initGallery();
                     showSuccessMessage('\u2713 Ordre mis \u00e0 jour');
                 });
 
@@ -3551,7 +3580,7 @@
             if (photo) {
                 photo.title = newTitle;
                 savePhotosToStorage();
-                refreshGallery();
+                initGallery();
                 showSuccessMessage('\u2713 Nom mis \u00e0 jour');
             }
         }
@@ -3561,7 +3590,7 @@
             if (photo) {
                 photo.category = newCategory;
                 savePhotosToStorage();
-                refreshGallery();
+                initGallery();
                 showSuccessMessage('\u2713 Cat\u00e9gorie mise \u00e0 jour');
             }
         }
@@ -3586,17 +3615,11 @@
             galleryImages = galleryImages.filter(photo => photo.id !== id);
             savePhotosToStorage();
             updateAdminPhotosList();
-            refreshGallery();
+            initGallery();
             showSuccessMessage('✓ Photo supprimée');
         }
 
         // === GALLERY INITIALIZATION ===
-        function refreshGallery() {
-            const activeBtn = document.querySelector('.filter-btn.active:not(.admin-btn)');
-            const category = activeBtn ? activeBtn.getAttribute('data-filter') : 'all';
-            filterGallery(category, activeBtn);
-        }
-
         function initGallery() {
             const grid = document.getElementById('galleryGrid');
             grid.innerHTML = '';
