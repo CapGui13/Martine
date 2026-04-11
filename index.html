@@ -4462,7 +4462,7 @@
             // Si on redimensionne vers mobile après que le site soit déjà révélé en desktop,
             // s'assurer que .mobile-revealed est bien appliqué
             window.addEventListener('resize', function() {
-                if (window.innerWidth <= 743) {
+                if (window.innerWidth <= 700) {
                     const mainContainer = document.querySelector('.main-container');
                     if (mainContainer && !mainContainer.classList.contains('mobile-revealed')) {
                         mainContainer.classList.add('mobile-revealed');
@@ -4478,7 +4478,7 @@
         // === ACCORDÉON MOBILE ===
         (function() {
             function isMobile() {
-                return window.innerWidth <= 743;
+                return window.innerWidth <= 700;
             }
 
             function openCard(card) {
