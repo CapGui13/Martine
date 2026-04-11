@@ -1847,13 +1847,16 @@
 
             /* Nav sous le header, horizontale sur une ligne */
             .nav-card-container {
-                position: relative;
-                left: auto;
-                transform: none;
-                margin-top: 0;
+                position: relative !important;
+                left: auto !important;
+                transform: none !important;
+                margin-top: 0 !important;
+                margin-bottom: 0.5rem !important;
                 justify-content: center;
                 width: 100%;
                 padding: 0 1rem;
+                z-index: auto;
+                white-space: normal;
             }
 
             .nav-card {
