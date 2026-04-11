@@ -420,7 +420,7 @@
         }
 
         /* Quand la nav déborde (zoom élevé), elle se repositionne normalement */
-        @media (max-width: 1050px) and (min-width: 601px) {
+        @media (max-width: 1050px) and (min-width: 550px) {
             /* Annuler le débordement desktop du logo-right */
             .logo-right {
                 align-self: center;
@@ -1845,8 +1845,8 @@
             }
         }
 
-        /* === ACCORDÉON : mobiles ≤ 600px === */
-        @media (max-width: 600px) {
+        /* === ACCORDÉON : mobiles ≤ 549px === */
+        @media (max-width: 549px) {
             .main-container {
                 grid-template-columns: 1fr;
                 gap: 0.6rem;
@@ -4406,7 +4406,7 @@
             // Si on redimensionne vers mobile après que le site soit déjà révélé en desktop,
             // s'assurer que .mobile-revealed est bien appliqué
             window.addEventListener('resize', function() {
-                if (window.innerWidth <= 600) {
+                if (window.innerWidth <= 549) {
                     const mainContainer = document.querySelector('.main-container');
                     if (mainContainer && !mainContainer.classList.contains('mobile-revealed')) {
                         mainContainer.classList.add('mobile-revealed');
@@ -4422,7 +4422,7 @@
         // === ACCORDÉON MOBILE ===
         (function() {
             function isMobile() {
-                return window.innerWidth <= 600;
+                return window.innerWidth <= 549;
             }
 
             function openCard(card) {
