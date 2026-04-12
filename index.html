@@ -2036,18 +2036,6 @@
             }
             .logo-right img { height: 36px; }
 
-            .nav-card-container {
-                position: absolute;
-                left: 50%;
-                transform: translateX(-50%);
-                top: 100%;
-                margin-top: 0;
-                padding: 0;
-                width: 100%;
-                flex-direction: column;
-                z-index: 10;
-            }
-            
             .facebook-icon {
                 width: 40px;
                 height: 40px;
@@ -2063,9 +2051,19 @@
                 flex-direction: column;
                 gap: 0.6rem;
                 width: 100%;
-                padding: 0.8rem;
+                padding: 0;
                 background: transparent;
                 box-shadow: none;
+                border-radius: 0;
+            }
+
+            .nav-card-container {
+                position: static;
+                transform: none;
+                margin-top: 0.2rem;
+                padding: 0;
+                width: 100%;
+                flex-direction: column;
             }
 
             .nav-card button {
