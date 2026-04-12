@@ -2037,12 +2037,15 @@
             .logo-right img { height: 36px; }
 
             .nav-card-container {
-                position: static;
-                transform: none;
-                margin-top: 0.2rem;
-                padding: 0 1rem;
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                top: 100%;
+                margin-top: 0;
+                padding: 0;
                 width: 100%;
                 flex-direction: column;
+                z-index: 10;
             }
             
             .facebook-icon {
