@@ -1851,7 +1851,6 @@
             .section-card {
                 padding: 0;
                 overflow: visible;
-                border-top: none;
             }
 
             .section-card-toggle {
@@ -2089,7 +2088,6 @@
             .section-card {
                 padding: 0;
                 overflow: visible;
-                border-top: none;
             }
 
             .section-card-toggle {
@@ -2884,7 +2882,14 @@
         }
     </style>
     <div id="bg-mobile"></div>
-    <div id="site-cover" style="position:fixed;inset:0;z-index:9998;transition:opacity 0.4s ease;background:url('https://i.imgur.com/SF7rXmN.jpeg') center top/cover;"></div>
+    <div id="site-cover" style="position:fixed;inset:0;z-index:9998;transition:opacity 0.4s ease;background:url('https://i.imgur.com/SF7rXmN.jpeg') center top/cover;" class="site-cover-el"></div>
+    <style>
+        @media (max-width: 1050px) {
+            .site-cover-el {
+                background: url('https://i.imgur.com/MxM3Se0.jpeg') top center / 100% auto repeat-y !important;
+            }
+        }
+    </style>
     <script>
         (function() {
             var cover = document.getElementById('site-cover');
