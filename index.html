@@ -208,23 +208,55 @@
             scrollbar-color: #888 #1a1a1a;
         }
 
-        /* Scroll lock — bloque le fond sans saut de position */
-        body.scroll-locked {
-            overflow: hidden;
-            touch-action: none;
-            position: fixed;
-            width: 100%;
+        /*
+         * ============================================================
+         * SCROLL LOCK — STRATÉGIE ANTI-DÉCALAGE LATÉRAL
+         * ============================================================
+         *
+         * PROBLÈME À NE PAS RECRÉER :
+         * Quand une modale s'ouvre, on veut bloquer le scroll de la page
+         * derrière. L'erreur classique est d'appliquer overflow:hidden
+         * sur <html> — cela fait disparaître la scrollbar ET l'espace
+         * qu'elle occupait (~15px), ce qui décale tout le contenu vers
+         * la droite au moment de l'ouverture.
+         *
+         * SOLUTION CORRECTE (3 règles à ne jamais modifier ensemble) :
+         *
+         *   1. Sur <html> : déclarer scrollbar-gutter:stable (plus haut
+         *      dans ce fichier). Cela RÉSERVE l'espace de la scrollbar
+         *      en permanence, qu'elle soit visible ou non.
+         *
+         *   2. Sur html.scroll-locked : NE PAS mettre overflow:hidden.
+         *      Garder overflow-y:scroll pour que le gutter reste actif.
+         *      Si on passe html à overflow:hidden, le gutter est détruit
+         *      et le décalage revient immédiatement.
+         *
+         *   3. Bloquer le scroll UNIQUEMENT via body.scroll-locked
+         *      avec overflow:hidden. Le body n'a pas de scrollbar propre
+         *      dans cette config, donc aucun espace ne disparaît.
+         *
+         * RÈGLE D'OR : ne jamais compenser le décalage avec paddingRight
+         * en JS — c'est un patch fragile. La bonne approche est de
+         * l'empêcher structurellement avec scrollbar-gutter:stable.
+         *
+         * NE PAS FAIRE :
+         *   html.scroll-locked { overflow: hidden; }           ← décalage
+         *   document.documentElement.style.paddingRight = ...  ← patch JS
+         *   document.body.style.paddingRight = ...             ← patch JS
+         *
+         * FAIRE :
+         *   html                { scrollbar-gutter: stable; }  ← réserve l'espace
+         *   html.scroll-locked  { overflow-y: scroll; }        ← maintient le gutter
+         *   body.scroll-locked  { overflow: hidden; }          ← bloque le scroll
+         * ============================================================
+         */
+        html.scroll-locked {
+            overflow-y: scroll; /* IMPORTANT : garder scroll (pas hidden) pour préserver scrollbar-gutter */
         }
 
-        /* Sur mobile : pas de position:fixed sur le body (évite le saut du fond) */
-        @media (max-width: 599px) {
-            body.scroll-locked {
-                position: static;
-                overflow: hidden;
-            }
-            html.scroll-locked {
-                overflow: hidden;
-            }
+        body.scroll-locked {
+            overflow: hidden;   /* C'est ici que le scroll est réellement bloqué */
+            touch-action: none;
         }
 
         /* Scrollable containers inside modals: allow vertical pan */
@@ -4055,27 +4087,25 @@
 
         function lockScroll() {
             _scrollY = window.scrollY;
-            if (window.innerWidth <= 599) {
-                // Mobile : overflow hidden uniquement, sans position:fixed (évite le saut du fond)
-                document.documentElement.classList.add('scroll-locked');
-                document.body.classList.add('scroll-locked');
-            } else {
-                const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-                document.documentElement.style.paddingRight = scrollbarWidth + 'px';
-                document.body.style.top = `-${_scrollY}px`;
-                document.body.offsetHeight;
-                document.body.classList.add('scroll-locked');
-            }
+            /*
+             * On ajoute scroll-locked sur html ET body.
+             * - html.scroll-locked : overflow-y:scroll (maintient le scrollbar-gutter)
+             * - body.scroll-locked : overflow:hidden (bloque effectivement le scroll)
+             *
+             * NE PAS ajouter de paddingRight ici pour "compenser la scrollbar" :
+             * si scrollbar-gutter:stable est correctement déclaré sur html et que
+             * html.scroll-locked ne l'écrase pas avec overflow:hidden, il n'y a
+             * aucun décalage à compenser — l'espace est déjà réservé en permanence.
+             */
+            document.documentElement.classList.add('scroll-locked');
+            document.body.classList.add('scroll-locked');
         }
 
         function unlockScroll() {
             document.documentElement.classList.remove('scroll-locked');
             document.body.classList.remove('scroll-locked');
-            document.body.style.top = '';
-            document.documentElement.style.paddingRight = '';
-            if (window.innerWidth > 599) {
-                window.scrollTo(0, _scrollY);
-            }
+            // Pas de paddingRight à réinitialiser — on n'en applique pas.
+            window.scrollTo(0, _scrollY);
         }
 
         // === OVERLAY MANAGEMENT ===
