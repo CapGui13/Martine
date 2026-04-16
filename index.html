@@ -2966,11 +2966,9 @@
             popup.classList.remove('active');
             popup.classList.add('closing');
             setTimeout(function(){ if (popup.parentNode) popup.remove(); }, 300);
-            try { sessionStorage.setItem('popupSeen', 'true'); } catch(e) {}
         }
 
         function showPopup() {
-            try { if (sessionStorage.getItem('popupSeen')) return; } catch(e) {}
             var popup = document.getElementById('welcomePopup');
             if (!popup) return;
             popup.style.display = 'flex';
@@ -2982,12 +2980,12 @@
             });
         }
 
-        // Popup désactivé — décommenter pour réactiver :
-        // if (document.readyState === 'loading') {
-        //     document.addEventListener('DOMContentLoaded', showPopup);
-        // } else {
-        //     showPopup();
-        // }
+        // Popup activé
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', showPopup);
+        } else {
+            showPopup();
+        }
     </script>
     <script>
         // Désactive la restauration native du scroll par le navigateur (mobile Safari/Chrome)
@@ -3092,7 +3090,7 @@
     <div class="popup-overlay" id="welcomePopup" style="display:none;" onclick="if(event.target===this) closePopup()">
         <div style="position:relative; max-width: min(600px, 92vw); display:inline-block; background:transparent; line-height:0; border-radius:12px; overflow:hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); animation: popIn 1s ease-out 0.15s both;">
             <button class="popup-close" onclick="closePopup()" aria-label="Fermer" style="position:absolute; background: rgba(0,0,0,0.6); top: 0.6rem; right: 0.6rem; z-index: 10;">✕</button>
-            <!-- Image chargée dynamiquement uniquement si le popup est activé -->
+            <img src="https://i.imgur.com/ThYhylI.jpeg" alt="Marathon du 1er Mai - Bridge Club Roy René" loading="lazy" style="width:100%; display:block;">
         </div>
     </div>
 
@@ -3162,6 +3160,7 @@
                     <p class="address-line">Boulevard du Maréchal Juin</p>
                     <p class="address-line">13090 Aix-en-Provence</p>
                     <p><strong>Téléphone :</strong> 04 42 95 62 03</p>
+                    <!-- EMAIL EN CLAIR — ne pas laisser Cloudflare obfusquer cette ligne -->
                     <p><strong>Email :</strong> <a href="mailto:royrenebridge@gmail.com">royrenebridge@gmail.com</a></p>
                     <p style="font-style: italic; margin-top: 2.5rem; color: #666; line-height: 1.15;">
                         Créé en Octobre 1967, le Bridge Club du Roy René occupe maintenant le rez-de-chaussée de la Maison du Bridge à Aix-en-Provence.<br><br>
@@ -3283,6 +3282,7 @@
         </div>
         <div class="contact-info-item">
             <label>Email</label>
+            <!-- EMAIL EN CLAIR — ne pas laisser Cloudflare obfusquer cette ligne -->
             <p><a href="mailto:royrenebridge@gmail.com">royrenebridge@gmail.com</a></p>
         </div>
     </div>
@@ -3324,6 +3324,7 @@
                 </div>
                 <div class="contact-info-item">
                     <label>Email</label>
+                    <!-- EMAIL EN CLAIR — ne pas laisser Cloudflare obfusquer cette ligne -->
                     <p><a href="mailto:royrenebridge@gmail.com">royrenebridge@gmail.com</a></p>
                 </div>
             </div>
@@ -3438,6 +3439,7 @@
         <div class="footer-inner">
             <div class="footer-links">
                 <a href="tel:+33442956203"><span class="footer-tel-icon">📞</span> 04 42 95 62 03</a>
+                <!-- EMAIL EN CLAIR — ne pas laisser Cloudflare obfusquer cette ligne -->
                 <a href="mailto:royrenebridge@gmail.com">✉ royrenebridge@gmail.com</a>
             </div>
             <div class="footer-copy">
@@ -3466,7 +3468,8 @@
                 ville:     "Aix-en-Provence",
                 tel:       "04 42 95 62 03",
                 telHref:   "tel:+33442956203",
-                email:     "bridgeclubroyrene@gmail.com",
+                // EMAIL EN CLAIR — ne pas laisser Cloudflare obfusquer cette ligne
+                email:     "royrenebridge@gmail.com",
                 facebook:  "https://www.facebook.com/profile.php?id=100008045747478",
                 fondation: "Octobre 1967",
             },
@@ -4320,6 +4323,7 @@
                 _captcha: 'false'
             };
 
+            // EMAIL EN CLAIR — ne pas laisser Cloudflare obfusquer cette ligne
             fetch('https://formsubmit.co/ajax/royrenebridge@gmail.com', {
                 method: 'POST',
                 headers: {
