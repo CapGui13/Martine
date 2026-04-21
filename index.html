@@ -517,7 +517,16 @@
                 position: relative;
             }
             .logo-text {
-                flex: 1;
+                /*
+                 * ⚠️ position:absolute DÈS LE DÉPART sur tablette.
+                 * Avant : flex:1 → le logo-text occupait de l'espace dans le flux.
+                 * centerLogoText() le passait en position:absolute après 500ms via setTimeout.
+                 * Ce changement flex→absolute retirait l'élément du flux, rétrécissait le
+                 * header, remontait la nav, et faisait sauter toutes les sections en dessous.
+                 * Solution : position:absolute immédiatement en CSS → pas de reflow tardif.
+                 * Le JS n'a plus qu'à positionner left/bottom sans changer le flow.
+                 */
+                position: absolute;
                 align-items: center;
                 text-align: center;
                 opacity: 0;
@@ -566,7 +575,7 @@
 
         @media (max-width: 599px) {
             body.animate .nav-card-container {
-                transition: opacity 2s ease 0.7s;
+                transition: opacity 1.5s ease 0.3s;
             }
         }
         
@@ -2265,6 +2274,7 @@
             body.animate.logo-go .logo-subtitle-city {
                 opacity: 1;
                 transform: translateY(0);
+                transition-delay: 0.85s;
             }
             .logo-right img { height: 48px; }
 
@@ -2919,21 +2929,32 @@
         }
 
         @media (max-width: 599px) {
-            /* Sur mobile : les 3 sections forment un seul bloc qui glisse depuis le bas */
-            .main-container {
-                transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-                opacity: 0;
-                transform: translateY(60vh);
-            }
-            .main-container.mobile-revealed {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            /* Désactiver l'animation individuelle des cards sur mobile */
-            .section-card {
-                opacity: 1 !important;
+        }
+
+        /*
+         * === TABLETTE : neutraliser translateY sur les section-cards ===
+         *
+         * Sur tablette la nav est dans le flux normal (position:relative).
+         * Les .section-card ont opacity:0 + translateY(50px) via .reveal.
+         * Ce translateY décale le layout et fait "sauter" la page au moment
+         * où il se résorbe → glitch visible au chargement.
+         * On force transform:none dès le départ sur tablette ; l'opacité seule
+         * suffit pour l'animation d'apparition, sans perturber le flux.
+         */
+        /*
+         * === TABLETTE + MOBILE : neutraliser translateY sur les section-cards ===
+         * La nav est dans le flux normal sur ces deux breakpoints.
+         * translateY(50px) via .reveal décalerait le layout → saut visible.
+         * On neutralise le transform ; seule l'opacité anime l'apparition.
+         */
+        @media (max-width: 1024px) {
+            .section-card.reveal,
+            .section-card.reveal-down {
                 transform: none !important;
-                transition: none !important;
+            }
+            .section-card.reveal.visible,
+            .section-card.reveal-down.visible {
+                transform: none !important;
             }
         }
 
@@ -2952,11 +2973,26 @@
         body.animate.logo-go .logo-img img {
             animation: dropBounce 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0s both;
         }
+        /* Tablette & mobile : carte plus lente, délai un peu plus long */
+        @media (max-width: 1024px) {
+            body.animate.logo-go .logo-img img {
+                animation: dropBounce 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
+            }
+        }
         body.animate.logo-go .logo-title {
             animation: dropNoBounce 0.7s ease-out 0.15s both;
         }
         body.animate.logo-go .logo-subtitle-main {
             animation: fadeSlideUp 0.6s ease 0.35s both;
+        }
+        /* Tablette & mobile : BCRR descend, "Bridge Club..." monte, décalés après la carte */
+        @media (max-width: 1024px) {
+            body.animate.logo-go .logo-title {
+                animation: dropNoBounce 0.7s ease-out 0.5s both;
+            }
+            body.animate.logo-go .logo-subtitle-main {
+                animation: fadeSlideUp 0.6s ease 0.7s both;
+            }
         }
 
         /* Logo Comité dans le header, ne suit pas le parallaxe */
@@ -2974,6 +3010,12 @@
         }
         body.animate.logo-go .logo-right-inner.anim-pending {
             animation: slideUpFade 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+        }
+        /* Mobile : FB + Comité descendent depuis au-dessus, décalés après la carte */
+        @media (max-width: 599px) {
+            body.animate.logo-go .logo-right-inner.anim-pending {
+                animation: slideDownFade 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
+            }
         }
 
         .nav-facebook-wrap {
@@ -4888,41 +4930,42 @@
 
             // Lancer l'observer seulement quand le site est révélé
             window._startReveal = function() {
-                const isMobile = window.innerWidth <= 599;
-                const isTablet = window.innerWidth >= 600 && window.innerWidth <= 1024;
+                const isSmallScreen = window.innerWidth <= 1024; // tablette + mobile
+
                 const triggerAll = () => {
-                    if (isMobile) {
-                        // Mobile : les sections apparaissent en un seul bloc depuis le bas, plus tard
-                        const mainContainer = document.querySelector('.main-container');
-                        if (mainContainer) {
-                            setTimeout(() => {
-                                mainContainer.classList.add('mobile-revealed');
-                            }, 300);
-                        }
-                        // Contenu révélé immédiatement (pas de masque sur mobile)
+                    if (isSmallScreen) {
+                        /*
+                         * Sur tablette et mobile : révéler toutes les cards instantanément,
+                         * sans stagger ni translateY (neutralisé en CSS via @media max-width:1024px).
+                         * La nav étant dans le flux normal, le translateY provoquerait un
+                         * layout shift visible. On passe directement à visible + content-reveal
+                         * avec une simple transition d'opacité.
+                         */
                         sectionCards.forEach((el) => {
                             el.classList.add('visible');
                             el.classList.add('content-reveal');
                         });
-                    } else {
-                        // Desktop & Tablette : animation en cascade originale
-                        const CARD_STAGGER = 200;
-                        const CONTENT_DELAY = 350;
-                        sectionCards.forEach((el, i) => {
-                            const cardStart = i * CARD_STAGGER;
-                            setTimeout(() => el.classList.add('visible'), cardStart);
-                            setTimeout(() => el.classList.add('content-reveal'), cardStart + CONTENT_DELAY);
-                        });
+                        document.body.classList.add('logo-go');
+                        revealEls.forEach(el => observer.observe(el));
+                        return;
                     }
+
+                    // Desktop : comportement original avec stagger
+                    const CARD_STAGGER  = 200;
+                    const CONTENT_DELAY = 350;
+                    sectionCards.forEach((el, i) => {
+                        const cardStart = i * CARD_STAGGER;
+                        setTimeout(() => el.classList.add('visible'), cardStart);
+                        setTimeout(() => el.classList.add('content-reveal'), cardStart + CONTENT_DELAY);
+                    });
 
                     setTimeout(() => {
                         document.body.classList.add('logo-go');
                     }, 600);
 
-                    // Observer tous les éléments reveal
                     revealEls.forEach(el => observer.observe(el));
                 };
-                setTimeout(triggerAll, isMobile ? 100 : 400);
+                setTimeout(triggerAll, 400);
             };
 
             // Si on redimensionne vers mobile après que le site soit déjà révélé en desktop,
@@ -5296,10 +5339,10 @@
             }
 
             document.addEventListener('DOMContentLoaded', function() {
-                setTimeout(function() {
-                    if (isTablet()) centerLogoText();
-                    else reset();
-                }, 500);
+                // Plus besoin de délai : logo-text est déjà position:absolute en CSS.
+                // Le JS ne fait que calculer les coordonnées left/bottom → pas de reflow.
+                if (isTablet()) centerLogoText();
+                else reset();
             });
             window.addEventListener('resize', function() {
                 if (isTablet()) centerLogoText();
